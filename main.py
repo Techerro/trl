@@ -15,9 +15,9 @@ from utils import verify_user, check_token, check_verification, get_token
 # Initialize the Pyrogram client with API credentials
 app = Client(
     "my_bot",
-    api_id=10471716,
-    api_hash="f8a1b21a13af154596e2ff5bed164860",
-    bot_token="6999401413:AAHgF1ZpUsCT5MgWX1Wky7GbegyeHvzi2AU"
+    api_id=21976605,
+    api_hash="6a8cf36a56b0900f70bc5576f14c9187",
+    bot_token="6470840573:AAEj7IlfuzHLDR7wKNYr6u0m8Q906fZM2QQ"
 )
 
 # Start command handler
