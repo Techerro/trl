@@ -64,45 +64,52 @@ async def start(bot, update):
                 protect_content=True
             )
 
-
-# Message handler
 @app.on_message(filters.text)
-async def echo(bot, update):
-    if not await check_verification(bot, update.from_user.id) and Config.TECH_VJ == True:
-        btn = [[
-            InlineKeyboardButton("👨‍💻 ᴠᴇʀɪғʏ", url=await get_token(bot, update.from_user.id, f"https://telegram.me/{Config.TECH_VJ_BOT_USERNAME}?start="))
-            ],[
-            InlineKeyboardButton("🔻 ʜᴏᴡ ᴛᴏ ᴏᴘᴇɴ ʟɪɴᴋ ᴀɴᴅ ᴠᴇʀɪғʏ 🔺", url=f"{Config.TECH_VJ_TUTORIAL}")
-        ]]
-        await update.reply_text(
-            text="<b>ᴅᴜᴇ ᴛᴏ ᴏᴠᴇʀʟᴏᴀᴅ ᴏɴ ʙᴏᴛ ʏᴏᴜ ʜᴀᴠᴇ ᴠᴇʀɪғʏ ғɪʀsᴛ\nᴋɪɴᴅʟʏ ᴠᴇʀɪғʏ ғɪʀsᴛ\n\nɪғ ʏᴏᴜ ᴅᴏɴ'ᴛ ᴋɴᴏᴡ ʜᴏᴡ ᴛᴏ ᴠᴇʀɪғʏ ᴛʜᴇɴ ᴛᴀᴘ ᴏɴ ʜᴏᴡ ᴛᴏ ᴏᴘᴇɴ ʟɪɴᴋ ʙᴜᴛᴛᴏɴ ᴛʜᴇɴ sᴇᴇ 60 sᴇᴄᴏɴᴅ ᴠɪᴅᴇᴏ ᴛʜᴇɴ ᴄʟɪᴄᴋ ᴏɴ ᴠᴇʀɪғʏ ʙᴜᴛᴛᴏɴ ᴀɴᴅ ᴠᴇʀɪғʏ</b>",
+async def handle_message(client, message):
+    message_text = message.text
+    
+    # Check if verification is needed and a certain condition is met
+    if not await check_verification(client, message.from_user.id) and Config.TECH_VJ:
+        btn = [
+            [
+                InlineKeyboardButton("👨‍💻 ᴠᴇʀɪғʏ", url=await get_token(client, message.from_user.id, f"https://telegram.me/{Config.TECH_VJ_BOT_USERNAME}?start="))
+            ],
+            [
+                InlineKeyboardButton("🔻 ʜᴏᴡ ᴛᴏ ᴏᴘᴇɴ ʟɪɴᴋ ᴀɴᴅ ᴠᴇʀɪғʏ 🔺", url=f"{Config.TECH_VJ_TUTORIAL}")
+            ]
+        ]
+        
+        # Send a message prompting the user to verify
+        await message.reply_text(
+            text="<b>ᴅᴜᴇ ᴛᴏ ᴏᴠᴇʀʟᴏᴀᴅ ᴏɴ ʙᴏᴛ ʏᴏᴜ ʜᴀᴠᴇ ᴠᴇʀɪғʏ ғɪʀsᴛ\nᴋɪɴᴅʟʏ ᴠᴇʀɪғʏ ғɪʀsᴛ\n\nɪғ ʏᴏᴜ ᴅᴏɴ'ᴛ ᴋɴᴏᴡ ʜᴏᴡ ᴛᴏ ᴠᴇʀɪғʏ ᴛʜᴇɴ ᴛᴀᴘ ᴏɴ ʜᴏᴡ ᴛᴏ ᴏᴘᴇɴ ʟɪɴᴋ ʙᴜᴛᴛᴏɴ ᴛʜᴇɴ sᴇᴇ 60 sᴇᴄᴏɴᴅ ᴠɪᴅᴇᴏ ᴛʜᴇɴ ᴄʟɪᴄᴋ ᴏɴ ᴠᴇʀɪғʏ ʙᴜᴛᴛᴏɴ ᴀɴᴅ ᴠᴇʀɪғу</b>",
             protect_content=True,
             reply_markup=InlineKeyboardMarkup(btn)
         )
         return
-        await AddUser(bot, update)
-
-# Correct indentation for handle_message function
-@app.on_message(filters.text)
-async def handle_message(client, message):    
-    message_text = message.text
-    if message_text.startswith('/start'):
-        return  # Ignore /start messages here since we're handling them separately
+    
+    # Check if the message contains a Terabox link
     if "terabox.com" in message_text or "teraboxapp.com" in message_text:
         details = await get_details(message_text)
+        
+        # If details are available and there's a direct link
         if details and details.get("direct_link"):
             try:
+                # Send a status message
                 status_message = await message.reply_text("Sending Files Please Wait.!!......✨", reply_to_message_id=message.id)
+                
+                # Send the file associated with the direct link
                 await send_file(details["direct_link"], message, status_message)
             except Exception as e:
                 print(e)  # Log the error for debugging
                 await message.reply_text("Something went wrong 🙃😒\n**contact admin for assistance**", reply_to_message_id=message.id)
         else:
             await message.reply_text("Something went wrong 🙃😒\n**contact admin for assistance**", reply_to_message_id=message.id)
+        
         print(details)
     else:
+        # If the message does not contain a Terabox link, send a message requesting a valid Terabox link
         await message.reply_text("Please send a valid Terabox link.😕", reply_to_message_id=message.id)
-
+        
 async def send_file(item, message, status_message):
     try:
         response = requests.get(item)
